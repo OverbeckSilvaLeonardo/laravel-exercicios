@@ -13,10 +13,15 @@ class EventoController extends Controller
     public function listar(Request $request)
     {
         $filtro = $request->get('filtro');
-
-        dd($filtro);
-
         $consulta = Evento::query();
+
+        if (!empty($filtro)) {
+            $consulta->where('nome', 'ilike', '%' . $filtro . '%');;
+        }
+
+        dd($consulta->toRawSql());
+
+        // https://github.com/OverbeckSilvaLeonardo/laravel-exercicios
 
         $eventos = $consulta->get();
 
