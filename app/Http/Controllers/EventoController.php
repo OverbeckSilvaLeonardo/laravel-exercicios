@@ -1,9 +1,11 @@
 <?php
-
+// https://github.com/OverbeckSilvaLeonardo/laravel-exercicios
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EventoRequest;
 use App\Models\Evento;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class EventoController extends Controller
 {
@@ -13,15 +15,13 @@ class EventoController extends Controller
     public function listar(Request $request)
     {
         $filtro = $request->get('filtro');
-        $consulta = Evento::query();
+        $consulta = Evento::query()
+            ->with('ingressos')
+            ->withTrashed();
 
         if (!empty($filtro)) {
-            $consulta->where('nome', 'ilike', '%' . $filtro . '%');;
+            $consulta->where('nome', 'like', '%' . $filtro . '%');;
         }
-
-        dd($consulta->toRawSql());
-
-        // https://github.com/OverbeckSilvaLeonardo/laravel-exercicios
 
         $eventos = $consulta->get();
 
@@ -29,15 +29,9 @@ class EventoController extends Controller
     }
 
     public function buscar(string $id) {
-        $consulta = Evento::query();
+        $evento = Evento::find($id);
 
-        $consulta->where('id', $id); // id = 1
-//        $consulta->where('id', '>', $id); // id > 1
-
-
-        $evento = $consulta->get()->first();
-
-
+        dd($evento->ingressos());
 
         return ['message' => 'Listando o evento ID ' . $id, 'eventos' => $evento->toArray()];
     }
@@ -45,9 +39,31 @@ class EventoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function criar()
+    public function criar(EventoRequest $request)
     {
+        dd(EventoController::class);
+        $validado = $request->all();
+
+        $evento = new Evento;
+        $evento->nome = $validado['nome'];
+        $evento->data_inicio = $validado['data_inicio'];
+        $evento->data_fim = $validado['data_fim'];
+        $evento->save();
+
         return ['message' => 'Criando eventos do sistema'];
+    }
+
+    public function editar(string $id, EventoRequest $request)
+    {
+        $validado = $request->all();
+
+        $evento = Evento::find($id);
+        $evento->nome = $validado['nome'];
+        $evento->data_inicio = $validado['data_inicio'];
+        $evento->data_fim = $validado['data_fim'];
+        $evento->save();
+
+        return ['message' => 'Evento editado sucesso'];
     }
 
     /**
@@ -55,6 +71,9 @@ class EventoController extends Controller
      */
     public function excluir(int $id)
     {
+        $evento = Evento::find($id);
+        $evento->delete();
+
         return ['message' => 'Rota dentro do Grupo - Excluindo eventos do sistema ' . $id];
     }
 

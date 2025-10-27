@@ -15,6 +15,7 @@ Route::get('/user', function (Request $request) {
 Route::prefix('evento')->group(function () {
     Route::get('', [EventoController::class, 'listar']);
     Route::get('{id}', [EventoController::class, 'buscar']);
+    Route::put('{id}', [EventoController::class, 'editar']);
     Route::post('', [EventoController::class, 'criar']);
     Route::delete('{id}', [EventoController::class, 'excluir']);
 });
