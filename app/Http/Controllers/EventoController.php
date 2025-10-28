@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EventoRequest;
 use App\Models\Evento;
+use App\Models\Ingresso;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -15,9 +16,8 @@ class EventoController extends Controller
     public function listar(Request $request)
     {
         $filtro = $request->get('filtro');
-        $consulta = Evento::query()
-            ->with('ingressos')
-            ->withTrashed();
+        $consulta = Ingresso::query()
+            ->with('evento');
 
         if (!empty($filtro)) {
             $consulta->where('nome', 'like', '%' . $filtro . '%');;
@@ -41,7 +41,6 @@ class EventoController extends Controller
      */
     public function criar(EventoRequest $request)
     {
-        dd(EventoController::class);
         $validado = $request->all();
 
         $evento = new Evento;
